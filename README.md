@@ -106,11 +106,11 @@ A production-grade implementation of Infrastructure as Code (**Terraform** on Az
    git --version         # Must be >= 2.30
    ```
 4. **SSH Key Pair**:
-   # For Linux OS
+   ### For Linux OS
    ```bash
    ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -N ""
    ```
-   # For Windows OS 
+   ### For Windows OS 
    ```powershell
    # Create the directory if it does not exist
    New-Item -ItemType Directory -Force -Path "\$env:USERPROFILE\Downloads\multicloud-key"
