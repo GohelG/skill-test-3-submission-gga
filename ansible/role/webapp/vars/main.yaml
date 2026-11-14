@@ -1,0 +1,4 @@
+---
+app_git_repo: "https://github.com/GohelG/skill-test-3-submission-gga.git"
+app_install_dir: "/var/www/webapp"
+app_version: "main"
