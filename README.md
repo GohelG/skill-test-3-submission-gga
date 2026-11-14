@@ -247,9 +247,9 @@ In Git, the **cache** refers directly to the **Index / Staging Area**. It serves
 
 ```text
 Working Directory                Git Cache (Index / Staging)                  Git Repository
- (Local Disk Files)                     (Cached Files)                       (Committed History)
-   [main.tf]         --- git add --->        [main.tf]         --- git commit ---> [Commit Object]
-   [terraform.tfvars]                 [terraform.tfvars] (LEAK!)
+(Local Disk Files)                     (Cached Files)                       (Committed History)
+[main.tf]         --- git add --->        [main.tf]       --- git commit ---> [Commit Object]
+[terraform.tfvars]                 [terraform.tfvars] (LEAK!)
 ```
 
 > ⚠️ **Critical Rule**: Adding a pattern to `.gitignore` does **not** stop Git from tracking a file if that file was already added to the Git cache (index) in a previous step.
