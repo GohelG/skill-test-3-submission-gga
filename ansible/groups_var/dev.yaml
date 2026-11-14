@@ -1,0 +1,6 @@
+---
+target_env: "dev"
+db_host: "10.0.2.10"
+db_user: "dev_user"
+db_password: "DevPassword123!"
+debug_mode: "true"
