@@ -1,0 +1,6 @@
+---
+target_env: "staging"
+db_host: "10.0.2.11"
+db_user: "staging_user"
+db_password: "StagingPassword456!"
+debug_mode: "false"
