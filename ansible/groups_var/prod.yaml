@@ -1,0 +1,7 @@
+---
+# In production, encrypt using: ansible-vault encrypt groups_var/prod.yml
+target_env: "prod"
+db_host: "10.0.2.12"
+db_user: "prod_user"
+db_password: "ProdStrongSecretKey789!"
+debug_mode: "false"
