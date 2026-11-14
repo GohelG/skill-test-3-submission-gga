@@ -1,0 +1,13 @@
+<VirtualHost *:80>
+    ServerAdmin {{ admin_email }}
+    DocumentRoot {{ app_install_dir }}
+
+    <Directory {{ app_install_dir }}>
+        Options Indexes FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
+
+    ErrorLog ${APACHE_LOG_DIR}/webapp_error.log
+    CustomLog ${APACHE_LOG_DIR}/webapp_access.log combined
+</VirtualHost>
