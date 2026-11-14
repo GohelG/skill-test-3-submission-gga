@@ -1,0 +1,66 @@
+---
+# Zero-Downtime Rolling Deployment with Rollback
+- name: Zero-Downtime Rolling Update
+  hosts: web
+  become: true
+  serial: 1 # Deploy node-by-node for high availability
+  vars:
+    app_root: "/var/www/app"
+    release_dir: "{{ app_root }}/releases/{{ ansible_date_time.iso8601_basic_short }}"
+    current_symlink: "{{ app_root }}/current"
+
+  tasks:
+    - name: Execute deployment with rollback protection
+      block:
+        - name: Ensure release directories exist
+          ansible.builtin.file:
+            path: "{{ release_dir }}"
+            state: directory
+            mode: '0755'
+
+        - name: Check existing live symlink
+          ansible.builtin.stat:
+            path: "{{ current_symlink }}"
+          register: live_link
+
+        - name: Save previous release path for rollback
+          ansible.builtin.set_fact:
+            previous_release: "{{ live_link.stat.lnk_source }}"
+          when: live_link.stat.islnk is defined and live_link.stat.islnk
+
+        - name: Deploy new application version to release folder
+          ansible.builtin.copy:
+            content: "<h1>App Version: {{ ansible_date_time.iso8601 }}</h1>"
+            dest: "{{ release_dir }}/index.html"
+            mode: '0644'
+
+        - name: Run automated test against new build
+          ansible.builtin.command: "test -f {{ release_dir }}/index.html"
+          changed_when: false
+
+        - name: Atomically switch symlink to new version
+          ansible.builtin.file:
+            src: "{{ release_dir }}"
+            dest: "{{ current_symlink }}"
+            state: link
+            force: yes
+
+        - name: Validate health check on Port 80
+          ansible.builtin.uri:
+            url: "http://localhost:80"
+            status_code: 200
+          retries: 3
+          delay: 2
+
+      rescue:
+        - name: Rollback to previous release on failure
+          ansible.builtin.file:
+            src: "{{ previous_release }}"
+            dest: "{{ current_symlink }}"
+            state: link
+            force: yes
+          when: previous_release is defined
+
+        - name: Abort with error message
+          ansible.builtin.fail:
+            msg: "Deployment failed! Safely rolled back to {{ previous_release }}."
