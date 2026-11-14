@@ -6,39 +6,46 @@ A production-grade implementation of Infrastructure as Code (**Terraform** on Az
 
 ## 🏛 Architecture & Technology Stack
 
+### System Architecture
+
 ```text
-                                  +-----------------------------+
-|     Git Developer Client     |
-                                  +--------------+--------------+
-| Push
-                                                 v
-                                  +-----------------------------+
-|    Azure Jenkins VM (CI/CD)  |
-|  (Java 17, Docker, Ansible) |
-                                  +--------------+--------------+
-| Deploy
-                         +-----------------------+-----------------------+
-|                                               |
-                         v                                               v
-        +---------------------------------+             +---------------------------------+
-|      Azure Standard ALB         |             |       Azure VM (Web Tier)       |
-|  (Public HTTP / Health Probes)  |             |      (Apache2, UFW, motd)       |
-        +----------------+----------------+             +----------------+----------------+
-|                                               |
-                         v                                               v
-        +---------------------------------+             +---------------------------------+
-|   Azure VM Scale Set (VMSS)     |             |       Azure VM (DB Tier)        |
-|   (2-4 Instances, Autoscale)    |             |      (MySQL Server, UFW)        |
-        +---------------------------------+             +---------------------------------+
+                               +-----------------------------+
+                               |     Git Developer Client    |
+                               +--------------+--------------+
+                                              |
+                                            Push
+                                              v
+                               +-----------------------------+
+                               |    Azure Jenkins VM (CI/CD) |
+                               |  (Java 17, Docker, Ansible) |
+                               +--------------+--------------+
+                                              |
+                                           Deploy
+                      +-----------------------+-----------------------+
+                      |                                               |
+                      v                                               v
+     +---------------------------------+             +---------------------------------+
+     |       Azure Standard ALB        |             |       Azure VM (Web Tier)       |
+     |  (Public HTTP / Health Probes)  |             |      (Apache2, UFW, motd)       |
+     +----------------+----------------+             +----------------+----------------+
+                      |                                               |
+                      v                                               v
+     +---------------------------------+             +---------------------------------+
+     |   Azure VM Scale Set (VMSS)     |             |       Azure VM (DB Tier)        |
+     |   (2-4 Instances, Autoscale)    |             |      (MySQL Server, UFW)        |
+     +---------------------------------+             +---------------------------------+
 ```
 
-| Domain | Target Technology | Key Capabilities |
+### Technology Stack
+
+| Layer / Component | Technology / Service | Purpose |
 | :--- | :--- | :--- |
-| **Cloud Provider** | Microsoft Azure | Azure VNet, Subnets, NSG, Standard ALB, VMSS, Blob Storage |
-| **IaC** | Terraform `>= 1.5.0` | Modular root & child modules, dynamic `tls_private_key`, remote state |
-| **Configuration** | Ansible `>= 2.14` | Roles, Jinja2 templates, handlers, Vault encryption, `serial: 1` |
-| **CI/CD** | Jenkins LTS | Declarative pipeline, parallel testing, approval timeout gates, rollbacks |
-| **Security** | Git Index Hygiene | Secret detection, cached tracking prevention, index purging |
+| **Version Control** | Git | Source code management and deployment trigger |
+| **CI/CD & Automation** | Jenkins, Java 17, Docker, Ansible | Automated builds, containerization, and configuration management |
+| **Load Balancing** | Azure Standard ALB | Public HTTP traffic routing and instance health checks |
+| **Compute (Autoscaling)** | Azure VM Scale Set (VMSS) | Elastic scaling across 2 to 4 virtual machine instances |
+| **Web Tier** | Azure VM (Apache2, UFW) | Web server hosting, firewall rules, and custom login banner (`motd`) |
+| **Database Tier** | Azure VM (MySQL Server, UFW) | Relational data storage secured with host-level firewall rules |
 
 ---
 
